@@ -20,12 +20,16 @@
 
     <%= csrf_meta_tag %>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js" defer="defer"></script>
+    <%= javascript_include_tag "https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js",
+          defer: true,
+          nonce: csp_nonce_placeholder %>
+    <%- if @theme_id.present? %>
+      <%= discourse_color_scheme_stylesheets %>
+      <%= discourse_stylesheet_link_tag :common, supports_rtl: true %>
+    <%- end %>
     <%= discourse_stylesheet_link_tag "landing_page", theme_id: nil %>
 
     <%- if @theme_id.present? %>
-      <%= discourse_color_scheme_stylesheets %>
-      <%= discourse_stylesheet_link_tag (mobile_device? ? :mobile : :desktop) %>
       <%= discourse_stylesheet_link_tag :common_theme, theme_id: @theme_id %>
       <%= discourse_stylesheet_link_tag (mobile_device? ? :mobile_theme : :desktop_theme), theme_id: @theme_id %>
       <%= theme_lookup("head_tag") %>
@@ -34,7 +38,7 @@
   <body class="landing-page <%= @classes %>">
     <% if @scripts %>
       <% @scripts.each do |script| %>
-        <script src="<%= script %>"></script>
+        <%= javascript_include_tag script, nonce: csp_nonce_placeholder %>
       <% end %>
     <% end %>
     <%- if @theme_id.present? %>
@@ -50,7 +54,15 @@
     <%- if @theme_id.present? %>
       <%= theme_lookup("body_tag") %>
     <%- end %>
-    <%= javascript_include_tag "/plugins/discourse-landing-pages/javascripts/common.js", defer: "defer", type: "application/javascript" %>
-    <%= javascript_include_tag (mobile_device? ? "/plugins/discourse-landing-pages/javascripts/mobile" : "/plugins/discourse-landing-pages/javascripts/desktop.js"), defer: "defer", type: "application/javascript" %>
+    <%= javascript_include_tag "/plugins/discourse-landing-pages/javascripts/common.js",
+          defer: true,
+          type: "application/javascript",
+          nonce: csp_nonce_placeholder %>
+    <%= javascript_include_tag(
+          mobile_device? ? "/plugins/discourse-landing-pages/javascripts/mobile.js" : "/plugins/discourse-landing-pages/javascripts/desktop.js",
+          defer: true,
+          type: "application/javascript",
+          nonce: csp_nonce_placeholder
+        ) %>
   </body>
 </html>

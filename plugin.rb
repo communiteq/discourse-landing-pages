@@ -18,8 +18,6 @@ end
 
 add_admin_route "admin.landing_pages.title", "discourse-landing-pages", use_new_show_route: true
 
-extend_content_security_policy(script_src: ["https://ajax.googleapis.com"])
-
 after_initialize do
   %w[
     ../lib/landing_pages/engine.rb
@@ -52,7 +50,6 @@ after_initialize do
     ../app/controllers/landing_pages/admin/global.rb
     ../app/jobs/send_contact_email.rb
     ../app/mailers/contact_mailer.rb
-    ../extensions/content_security_policy.rb
     ../extensions/upload_validator.rb
     ../extensions/upload_creator.rb
     ../extensions/user_notifications.rb
@@ -62,7 +59,6 @@ after_initialize do
   add_to_class(:site, :landing_paths) { ::LandingPages.paths }
   add_to_serializer(:site, :landing_paths) { object.landing_paths }
 
-  ::ContentSecurityPolicy::Extension.singleton_class.prepend ContentSecurityPolicyLandingPagesExtension
   ::Upload.attr_accessor :for_landing_page
   ::UploadValidator.prepend UploadValidatorLandingPagesExtension
   ::UploadCreator.prepend UploadCreatorLandingPagesExtension
