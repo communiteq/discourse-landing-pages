@@ -1,6 +1,7 @@
 import { click, visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
+import selectKit from "discourse/tests/helpers/select-kit-helper";
 
 acceptance("Main | Navigation", function (needs) {
   needs.user();
@@ -13,6 +14,14 @@ acceptance("Main | Navigation", function (needs) {
         pages: [{ id: "page_0", name: "test", path: "test" }],
       });
     });
+    server.get("/admin/themes", () => {
+      return helper.response({
+        themes: [
+          { id: 1, name: "Full theme", component: false },
+          { id: 2, name: "Theme component", component: true },
+        ],
+      });
+    });
   });
 
   test("Displays only the pages section when selected", async function (assert) {
@@ -23,6 +32,20 @@ acceptance("Main | Navigation", function (needs) {
     assert.dom(".page-global").doesNotExist();
     assert.dom(".d-modal.update-pages-remote").doesNotExist();
     assert.dom(".d-modal.import-pages").doesNotExist();
+  });
+
+  test("the theme selector excludes theme components", async function (assert) {
+    await visit("/admin/plugins/discourse-landing-pages/main");
+    await click(".page-create");
+
+    const themes = selectKit(".theme-select");
+    await themes.expand();
+
+    assert.true(themes.rowByValue("1").exists(), "full themes are available");
+    assert.false(
+      themes.rowByValue("2").exists(),
+      "theme components are not offered separately"
+    );
   });
 
   test("Displays only the global section when selected", async function (assert) {

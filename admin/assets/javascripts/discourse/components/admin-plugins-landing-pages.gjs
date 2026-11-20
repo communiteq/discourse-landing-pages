@@ -68,10 +68,12 @@ export default class AdminPluginsLandingPages extends Component {
   async loadThemes() {
     const result = await ajax("/admin/themes");
 
-    this.themes = result.themes.map((theme) => ({
-      id: theme.id,
-      name: theme.name,
-    }));
+    this.themes = result.themes
+      .filter((theme) => !theme.component)
+      .map((theme) => ({
+        id: theme.id,
+        name: theme.name,
+      }));
   }
 
   async loadGroups() {
